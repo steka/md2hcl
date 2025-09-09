@@ -35,38 +35,60 @@ function renderTokensToHCL(tokens) {
           out.push('linerel $lines_width 0');
           out.push('endblock');
         }
-        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
         out.push('font $font $style $fontsize');
-        out.push('moverel 0 [expr $fontsize / 2]');
         break;
 
       case 'paragraph':
-        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
         break;
 
       case 'space':
-        out.push('moverel 0 [expr $fontsize / 2]');
         break;
 
       case 'list':
         token.items.forEach((item) => {
-          out.push(`text "* ${item.text.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+          out.push(`text "* ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
         });
+        break;
+
+      case 'blockquote':
+        out.push('moverel 3 0');
+        splitLines(token.text).forEach((line) => {
+          out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        });
+        out.push('moverel -3 0');
+        break;
+
+      case 'code':
+        out.push('font LinesMono $style $fontsize');
+        out.push('moverel 3 0');
+        splitLines(token.text).forEach((line) => {
+          out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        });
+        out.push('moverel -3 0');
+        out.push('font $font $style $fontsize');
+        break;
+
+      case 'hr':
+          out.push('block');
+          out.push('moverel 0 -$fontsize');
+          out.push('linerel $lines_width 0');
+          out.push('endblock');
         break;
 
       default:
         out.push('font $font bold [expr $fontsize * 1.5]');
         out.push('text "**NOT IMPLEMENTED YET!**"');
-        out.push('font LinesMono $style $fontsize');
-
+        out.push('font $font $style $fontsize');
         splitLines(token.raw).forEach((line) => {
           out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         });
-        out.push('font $font $style $fontsize');
 
         console.warn(`⚠️  Unhandled token type: ${ token.type}`);
         break;
     }
+    out.push('moverel 0 [expr $fontsize / 2]');
   });
 
   return out.join('\n');

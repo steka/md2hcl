@@ -1,4 +1,4 @@
-# **Basic Syntax**
+# Basic Syntax
 
 # Heading level 1
 ## Heading level 2
@@ -6,12 +6,6 @@
 #### Heading level 4
 ##### Heading level 5
 ###### Heading level 6
-
-Heading level 1 (with ===)
-===
-
-Heading level 2 (with ---)
----
 
 ### Styles:
 
@@ -59,7 +53,11 @@ Show some code `func(arg1, arg2)` in the middle of a sentence.
 
 ### Horizontal line:
 
+Text before horizontal line
+
 ---
+
+Text after horizontal line
 
 ### Link:
 
@@ -69,7 +67,7 @@ Show some code `func(arg1, arg2)` in the middle of a sentence.
 
 ![alt. text](image.jpg)
 
-# **Extended syntax**
+# Extended syntax
 
 ### Table:
 
