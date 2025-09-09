@@ -7,6 +7,9 @@ const fs = require('fs');
 const path = require('path');
 const marked = require('marked');
 
+// Define the 'splitLines' function that splits a string into an array of lines.
+const splitLines = str => str.split(/\r?\n/);
+
 // ------------------------------------------------------------------
 // Core rendering function – maps Marked tokens to HCL snippets
 function renderTokensToHCL(tokens) {
@@ -24,7 +27,7 @@ function renderTokensToHCL(tokens) {
     switch (token.type) {
 
       case 'heading':
-        out.push('font $font bold [expr $fontsize + 0.5]');
+        out.push('font $font bold [expr $fontsize * 1.1]');
         out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         out.push('font $font $style $fontsize');
         out.push('moverel 0 [expr $fontsize / 2]');
@@ -45,9 +48,16 @@ function renderTokensToHCL(tokens) {
         break;
 
       default:
-        out.push('font $font bold [expr $fontsize + 2]');
-        out.push('text "** NOT IMPLEMENTED YET! **"');
+        out.push('font $font bold [expr $fontsize * 1.5]');
+        out.push('text "**NOT IMPLEMENTED YET!**"');
+        out.push('font LinesMono $style $fontsize');
+
+        lines = splitLines(token.raw)
+        lines.forEach((line) => {
+          out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        });
         out.push('font $font $style $fontsize');
+
         console.warn(`⚠️  Unhandled token type: ${ token.type}`);
         break;
     }
