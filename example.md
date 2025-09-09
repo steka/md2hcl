@@ -11,11 +11,7 @@
 
 Different styles: **bold**, *italic* and ***bold-italic***
 
-Some characters needs to be escaped:
-* quote: "
-* backspace: \
-* left bracket: [
-* dollar: $
+Some characters needs to be escaped (quote: ", backspace: \, left bracket: [ and dollar: $)
 
 ### Paragraphs:
 
@@ -33,7 +29,9 @@ forced line break.
 ### Block quote:
 
 > Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
-> consectetur lacinia lorem a pharetra.
+> consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
+> augue sapien. Vivamus eu vehicula erat. Integer semper lectus eu orci
+> egestas, sed rutrum risus dapibus.
 
 ### Ordered list:
 

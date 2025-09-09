@@ -19,14 +19,13 @@ function renderTokensToHCL(tokens) {
   out.push('set font Lines')
   out.push('set style plain')
   out.push('set fontsize 3');
-  out.push('set left_margin 12');
+  out.push('set left_margin 13');
   out.push('set lines_width 140');
   out.push('font $font $style $fontsize');
   out.push('moveto $left_margin $fontsize');
 
   tokens.forEach( token => {
     switch (token.type) {
-
       case 'heading':
         out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]} ]`);
         if (token.depth < 3) {
@@ -53,11 +52,14 @@ function renderTokensToHCL(tokens) {
         break;
 
       case 'blockquote':
-        out.push('moverel 3 0');
-        splitLines(token.text).forEach((line) => {
-          out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
-        });
-        out.push('moverel -3 0');
+        out.push('set indent 3');
+        out.push('set xpos [expr [X [here]] + [expr $indent / 2]]');
+        out.push('set ypos [expr [Y [here]] - $fontsize]');
+        out.push('moverel $indent 0');
+        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" [expr $lines_width - 3]`);
+        out.push('moverel -$indent 0');
+        out.push('line $xpos $ypos $xpos [expr [Y [here]] - $fontsize]');
+        out.push('moverel -[expr $indent / 2] $fontsize');
         break;
 
       case 'code':
@@ -78,14 +80,10 @@ function renderTokensToHCL(tokens) {
         break;
 
       default:
-        out.push('font $font bold [expr $fontsize * 1.5]');
-        out.push('text "**NOT IMPLEMENTED YET!**"');
-        out.push('font $font $style $fontsize');
         splitLines(token.raw).forEach((line) => {
           out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         });
-
-        console.warn(`⚠️  Unhandled token type: ${ token.type}`);
+        console.warn(`⚠️  Unknown token type: ${ token.type} (inserted as is)`);
         break;
     }
     out.push('moverel 0 [expr $fontsize / 2]');
