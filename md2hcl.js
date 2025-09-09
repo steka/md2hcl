@@ -23,12 +23,13 @@ function renderTokensToHCL(tokens) {
   out.push('set lines_width 140');
   out.push('set indent 3');
   out.push('font $font $style $fontsize');
-  out.push('moveto $left_margin $fontsize');
+  out.push(`moveto $left_margin [expr $fontsize * ${headingScale[0]}]`);
+  out.push('pen black 0.25 solid')
 
   tokens.forEach( token => {
     switch (token.type) {
       case 'heading':
-        out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]} ]`);
+        out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]`);
         if (token.depth < 3) {
           out.push('block');
           out.push('moverel 0 1');
