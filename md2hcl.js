@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const marked = require('marked');
+const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
 
 // Define the 'splitLines' function that splits a string into an array of lines.
 const splitLines = str => str.split(/\r?\n/);
@@ -27,7 +28,13 @@ function renderTokensToHCL(tokens) {
     switch (token.type) {
 
       case 'heading':
-        out.push('font $font bold [expr $fontsize * 1.1]');
+        out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]} ]`);
+        if (token.depth < 3) {
+          out.push('block');
+          out.push('moverel 0 1');
+          out.push('linerel $lines_width 0');
+          out.push('endblock');
+        }
         out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         out.push('font $font $style $fontsize');
         out.push('moverel 0 [expr $fontsize / 2]');
@@ -52,8 +59,7 @@ function renderTokensToHCL(tokens) {
         out.push('text "**NOT IMPLEMENTED YET!**"');
         out.push('font LinesMono $style $fontsize');
 
-        lines = splitLines(token.raw)
-        lines.forEach((line) => {
+        splitLines(token.raw).forEach((line) => {
           out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         });
         out.push('font $font $style $fontsize');
