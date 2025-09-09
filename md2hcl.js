@@ -23,12 +23,17 @@ function renderTokensToHCL(tokens) {
   out.push('set lines_width 140');
   out.push('set indent 3');
   out.push('font $font $style $fontsize');
-  out.push(`moveto $left_margin [expr $fontsize * ${headingScale[0]}]`);
+  out.push('moveto $left_margin 0');
   out.push('pen black 0.25 solid')
 
   tokens.forEach( token => {
+    //out.push('block');
+    //out.push('block.scale 0.4');
+    //out.push('arrow -7 0 -1 0');
+    //out.push('endblock');
     switch (token.type) {
       case 'heading':
+        out.push(`moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]`)
         out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]`);
         if (token.depth < 3) {
           out.push('block');
@@ -36,62 +41,69 @@ function renderTokensToHCL(tokens) {
           out.push('linerel $lines_width 0');
           out.push('endblock');
         }
-        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
+        out.push(`text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
         out.push('font $font $style $fontsize');
+        out.push(`moverel 0 [expr -$fontsize * ${headingScale[token.depth-1]}]`);
         break;
 
       case 'paragraph':
-        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
+        out.push(`moverel 0 $fontsize`);
+        out.push(`text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
+        out.push(`moverel 0 -$fontsize`);
         break;
 
       case 'space':
+        //out.push('block');
+        //out.push('line -1 0 -1 [expr $fontsize / 2]');
+        //out.push('endblock');
+        out.push(`moverel 0 [expr $fontsize / 2]`);
         break;
 
       case 'list':
-        out.push('moverel $indent 0');
+        out.push('moverel $indent $fontsize');
         prefix = token.ordered ? token.start : '-';
         token.items.forEach((item) => {
           out.push(`text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
           if (token.ordered) prefix++;
         });
-        out.push('moverel -$indent 0');
+        out.push('moverel -$indent -$fontsize');
         break;
 
       case 'blockquote':
+        out.push('moverel 0 $fontsize');
         out.push('set xpos [expr [X [here]] + [expr $indent / 2]]');
         out.push('set ypos [expr [Y [here]] - $fontsize]');
         out.push('moverel $indent 0');
-        out.push(`text "${ token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" [expr $lines_width - 3]`);
+        out.push(`text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" [expr $lines_width - 3]`);
         out.push('moverel -$indent 0');
         out.push('line $xpos $ypos $xpos [expr [Y [here]] - $fontsize]');
-        out.push('moverel -[expr $indent / 2] $fontsize');
+        out.push('moverel -[expr $indent / 2] 0');
         break;
 
       case 'code':
-        out.push('font LinesMono $style $fontsize');
-        out.push('moverel 3 0');
-        splitLines(token.text).forEach((line) => {
-          out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        out.push('font LinesMono Bold $fontsize');
+        out.push('moverel 3 $fontsize');
+        splitLines(token.text.replace(/(\s*\n)*$/g, "")).forEach((line) => {
+          out.push(`text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         });
-        out.push('moverel -3 0');
+        out.push('moverel -3 -$fontsize');
         out.push('font $font $style $fontsize');
         break;
 
       case 'hr':
           out.push('block');
-          out.push('moverel 0 -$fontsize');
-          out.push('linerel $lines_width 0');
+          out.push('line 0 0 $lines_width 0');
           out.push('endblock');
         break;
 
       default:
-        splitLines(token.raw).forEach((line) => {
-          out.push(`text "${ line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
+        out.push('moverel 0 $fontsize');
+        splitLines(token.raw.replace(/(\s*\n)*$/g, "")).forEach((line) => {
+          out.push(`text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
         });
-        console.warn(`⚠️  Unknown token type: ${ token.type} (inserted as is)`);
+        console.warn(`⚠️  Unknown token type: ${token.type} (inserted as is)`);
         break;
     }
-    out.push('moverel 0 [expr $fontsize / 2]');
   });
 
   return out.join('\n');
