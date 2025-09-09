@@ -8,13 +8,11 @@
 ###### Heading level 6
 
 ### Styles:
-
 Different styles: **bold**, *italic* and ***bold-italic***
 
 Some characters needs to be escaped (quote: ", backspace: \, left bracket: [ and dollar: $)
 
 ### Paragraphs:
-
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo posuere
 felis, at mattis lectus vestibulum in. Vestibulum finibus, leo sed porttitor
 rhoncus, augue ex commodo enim, in accumsan diam nisl vel purus.
@@ -27,30 +25,25 @@ And a paragraph with a<br>
 forced line break.
 
 ### Block quote:
-
 > Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
 > consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
 > augue sapien. Vivamus eu vehicula erat. Integer semper lectus eu orci
 > egestas, sed rutrum risus dapibus.
 
 ### Ordered list:
-
 1. First item
 2. Second item
 3. Third item
 
 ### Unordered list:
-
-- item 1
-- item 2
-- item 3
+- Apple
+- Pear
+- Orange
 
 ### Inline code:
-
 Show some code `func(arg1, arg2)` in the middle of a sentence.
 
 ### Horizontal line:
-
 Text before horizontal line
 
 ---
@@ -58,17 +51,14 @@ Text before horizontal line
 Text after horizontal line
 
 ### Link:
-
 [example.com](https://example.com)
 
 ### Image:
-
 ![alt. text](image.jpg)
 
 # Extended syntax
 
 ### Table:
-
 | Header 1 | Header 2 |
 | -------- | -------- |
 | Cell 1.1 | Cell 2.1 |
@@ -76,7 +66,6 @@ Text after horizontal line
 | Cell 1.3 | Cell 2.3 |
 
 ### Fenced code block:
-
 ```
 #include <stdio.h>
 int main(int argc, char *argv[])
@@ -87,7 +76,6 @@ int main(int argc, char *argv[])
 ```
 
 ### Strikethrough:
-
 The following word is ~~strikedthrough~~!
 
 ### Task list:

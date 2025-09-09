@@ -21,6 +21,7 @@ function renderTokensToHCL(tokens) {
   out.push('set fontsize 3');
   out.push('set left_margin 13');
   out.push('set lines_width 140');
+  out.push('set indent 3');
   out.push('font $font $style $fontsize');
   out.push('moveto $left_margin $fontsize');
 
@@ -46,13 +47,16 @@ function renderTokensToHCL(tokens) {
         break;
 
       case 'list':
+        out.push('moverel $indent 0');
+        prefix = token.ordered ? token.start : '-';
         token.items.forEach((item) => {
-          out.push(`text "* ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
+          out.push(`text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
+          if (token.ordered) prefix++;
         });
+        out.push('moverel -$indent 0');
         break;
 
       case 'blockquote':
-        out.push('set indent 3');
         out.push('set xpos [expr [X [here]] + [expr $indent / 2]]');
         out.push('set ypos [expr [Y [here]] - $fontsize]');
         out.push('moverel $indent 0');
