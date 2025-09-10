@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const marked = require('marked');
 const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
+const showinfo = false;
 
 // Define the 'splitLines' function that splits a string into an array of lines.
 const splitLines = str => str.split(/\r?\n/);
@@ -16,24 +17,28 @@ const splitLines = str => str.split(/\r?\n/);
 function renderTokensToHCL(tokens) {
   const out = [];
 
-  out.push('set font Lines')
-  out.push('set style plain')
+  out.push('set font Lines');
+  out.push('set style plain');
   out.push('set fontsize 3');
   out.push('set left_margin 13');
   out.push('set lines_width 140');
   out.push('set indent 3');
   out.push('font $font $style $fontsize');
   out.push('moveto $left_margin 0');
-  out.push('pen black 0.25 solid')
+  out.push('pen black 0.25 solid');
 
   tokens.forEach( token => {
-    //out.push('block');
-    //out.push('block.scale 0.4');
-    //out.push('arrow -7 0 -1 0');
-    //out.push('endblock');
+    if (showinfo) { // Show start position of each token
+      out.push('block');
+      out.push('block.scale 0.4');
+      out.push('arrow -7 0 -1 0');
+      out.push('block.scale 1.5');
+      out.push(`label "${token.type}" NW`);
+      out.push('endblock');
+    }
     switch (token.type) {
       case 'heading':
-        out.push(`moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]`)
+        out.push(`moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]`);
         out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]`);
         if (token.depth < 3) {
           out.push('block');
@@ -53,9 +58,11 @@ function renderTokensToHCL(tokens) {
         break;
 
       case 'space':
-        //out.push('block');
-        //out.push('line -1 0 -1 [expr $fontsize / 2]');
-        //out.push('endblock');
+        if (showinfo) { // Indicate space length with a vertical line in the left margin
+          out.push('block');
+          out.push('line -1 0 -1 [expr $fontsize / 2]');
+          out.push('endblock');
+        }
         out.push(`moverel 0 [expr $fontsize / 2]`);
         break;
 
