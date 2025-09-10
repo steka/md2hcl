@@ -7,114 +7,92 @@ const fs = require('fs');
 const path = require('path');
 const marked = require('marked');
 const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
-const showinfo = false;
+const showinfo = true;
 
-// Define the 'splitLines' function that splits a string into an array of lines.
-const splitLines = str => str.split(/\r?\n/);
-
-// ------------------------------------------------------------------
-// Core rendering function – maps Marked tokens to HCL snippets
-function renderTokensToHCL(tokens) {
-  const out = [];
-
-  out.push('set font Lines');
-  out.push('set style plain');
-  out.push('set fontsize 3');
-  out.push('set left_margin 13');
-  out.push('set lines_width 140');
-  out.push('set indent 3');
-  out.push('font $font $style $fontsize');
-  out.push('moveto $left_margin 0');
-  out.push('pen black 0.25 solid');
-
-  tokens.forEach( token => {
-    if (showinfo) { // Show start position of each token
-      out.push('block');
-      out.push('block.scale 0.4');
-      out.push('arrow -7 0 -1 0');
-      out.push('block.scale 1.5');
-      out.push(`label "${token.type}" NW`);
-      out.push('endblock');
-    }
-    switch (token.type) {
-      case 'heading':
-        out.push(`moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]`);
-        out.push(`font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]`);
+// Override function
+const renderer = {
+    space(token) {
+        var str = '\n# SPACE TOKEN\n';
+        if (showinfo) { // Indicate space length with a triangle in the left margin
+          str += 'block\n';
+          str += 'line -1 0 -1 [expr $fontsize / 2] -1.5 [expr $fontsize / 4] -1 0\n';
+          str += 'endblock\n';
+        }
+        str += `moverel 0 [expr $fontsize / 2]\n`;
+        return str;
+    },
+    code(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    blockquote(token) {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    html(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    def(token)        {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    heading(token) {
+        var str = `\n# HEADING TOKEN (depth: ${token.depth})\n`;
+        str += `moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]\n`;
+        str += `font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]\n`;
         if (token.depth < 3) {
-          out.push('block');
-          out.push('moverel 0 1');
-          out.push('linerel $lines_width 0');
-          out.push('endblock');
+          str += 'block\n';
+          str += 'moverel 0 1\n';
+          str += 'linerel $lines_width 0\n';
+          str += 'endblock\n';
         }
-        out.push(`text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
-        out.push('font $font $style $fontsize');
-        out.push(`moverel 0 [expr -$fontsize * ${headingScale[token.depth-1]}]`);
-        break;
+        str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
+        str += 'font $font $style $fontsize\n';
+        str += `moverel 0 [expr -$fontsize * ${headingScale[token.depth-1]}]\n`;
+        return str;
+    },
+    hr(token) {
+        var str = `\n# HR TOKEN (raw: ${token.raw})\n`;
+        str += 'block\n';
+        str += 'line 0 0 $lines_width 0\n';
+        str += 'endblock\n';
+        return str;
+    },
+    list(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    listitem(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    checkbox(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    paragraph(token) {
+        var str = '\n# PARAGRAPH TOKEN\n';
+        str += `moverel 0 $fontsize\n`;
+        str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
+        str += `moverel 0 -$fontsize\n`;
+        return str;
+    },
+    table(token)      {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    tablerow(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    tablecell(token)  {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
 
-      case 'paragraph':
-        out.push(`moverel 0 $fontsize`);
-        out.push(`text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
-        out.push(`moverel 0 -$fontsize`);
-        break;
-
-      case 'space':
-        if (showinfo) { // Indicate space length with a vertical line in the left margin
-          out.push('block');
-          out.push('line -1 0 -1 [expr $fontsize / 2]');
-          out.push('endblock');
+    // span level renderer
+    strong(token)     {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    em(token)         {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    codespan(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    br(token)         {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    del(token)        {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    link(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    image(token)      {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    text(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    html(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+/*    html(token) {
+        if (token.text.match(/<\/?br>/)) {
+            return "\n";
+        } else if (token.text.match(/<!--.*-->/)) {
+            return "";
+        } else {
+            return "[" + token.text + "]";
         }
-        out.push(`moverel 0 [expr $fontsize / 2]`);
-        break;
+    },*/
+};
 
-      case 'list':
-        out.push('moverel $indent $fontsize');
-        prefix = token.ordered ? token.start : '-';
-        token.items.forEach((item) => {
-          out.push(`text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width`);
-          if (token.ordered) prefix++;
-        });
-        out.push('moverel -$indent -$fontsize');
-        break;
-
-      case 'blockquote':
-        out.push('moverel 0 $fontsize');
-        out.push('set xpos [expr [X [here]] + [expr $indent / 2]]');
-        out.push('set ypos [expr [Y [here]] - $fontsize]');
-        out.push('moverel $indent 0');
-        out.push(`text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" [expr $lines_width - 3]`);
-        out.push('moverel -$indent 0');
-        out.push('line $xpos $ypos $xpos [expr [Y [here]] - $fontsize]');
-        out.push('moverel -[expr $indent / 2] 0');
-        break;
-
-      case 'code':
-        out.push('font LinesMono Bold $fontsize');
-        out.push('moverel 3 $fontsize');
-        splitLines(token.text.replace(/(\s*\n)*$/g, "")).forEach((line) => {
-          out.push(`text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
-        });
-        out.push('moverel -3 -$fontsize');
-        out.push('font $font $style $fontsize');
-        break;
-
-      case 'hr':
-          out.push('block');
-          out.push('line 0 0 $lines_width 0');
-          out.push('endblock');
-        break;
-
-      default:
-        out.push('moverel 0 $fontsize');
-        splitLines(token.raw.replace(/(\s*\n)*$/g, "")).forEach((line) => {
-          out.push(`text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width`);
-        });
-        console.warn(`⚠️  Unknown token type: ${token.type} (inserted as is)`);
-        break;
-    }
-  });
-
-  return out.join('\n');
-}
+const header = `\
+set font Lines
+set style plain
+set fontsize 3
+set left_margin 13
+set lines_width 140
+set indent 3
+font $font $style $fontsize
+moveto $left_margin 0
+pen black 0.25 solid
+`;
 
 // ------------------------------------------------------------------
 // CLI handling
@@ -125,11 +103,9 @@ if (process.argv.length < 3) {
 const mdPath = path.resolve(process.argv[2]);
 const markdown = fs.readFileSync(mdPath, 'utf8');
 
-// Parse token stream
-const tokens = marked.lexer(markdown);
+marked.use({ renderer });
 
-// Convert to Drawj2d HCL
-let hcl = renderTokensToHCL(tokens);
+let hcl = header + marked.parse(markdown);
 
 // Write result
 const outPath = mdPath.replace(/\.md$/i, '.hcl');
