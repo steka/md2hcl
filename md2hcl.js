@@ -9,6 +9,8 @@ const marked = require('marked'); // Documentation at: https://marked.js.org
 const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
 const showinfo = true;
 
+globalThis.blockLevel = 0;
+
 // Define the 'splitLines' function that splits a string into an array of lines.
 const SplitLines = str => str.split(/\r?\n/);
 
@@ -57,14 +59,16 @@ const renderer = {
         return str;
     },
     blockquote(token) {
+        globalThis.blockLevel += 1;
         let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
-        str += 'set xpos [expr [X [here]] + [expr $indent / 2]]\n';
-        str += 'set ypos [Y [here]]\n';
+        str += `set xpos${globalThis.blockLevel} [expr [X [here]] + [expr $indent / 2]]\n`;
+        str += `set ypos${globalThis.blockLevel} [Y [here]]\n`;
         str += 'moverel $indent 0\n';
         str +=  this.parser.parse(token.tokens);
         str += 'moverel -$indent 0\n';
-        str += 'line $xpos $ypos $xpos [Y [here]]\n';
+        str += `line $xpos${globalThis.blockLevel} $ypos${globalThis.blockLevel} $xpos${globalThis.blockLevel} [Y [here]]\n`;
         str += 'moverel -[expr $indent / 2] 0\n';
+        globalThis.blockLevel -= 1;
         return str;
     },
     html(token)       {return NotImplementedYet(token);},

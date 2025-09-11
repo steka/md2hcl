@@ -23,10 +23,10 @@ nunc et dolor luctus faucibus.
 > Different styles: **bold**, *italic* and ***bold-italic***, a<br>
 > forced line break and some include `code`.
 >
-> Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
-> consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
-> augue sapien. Vivamus eu vehicula erat. Integer semper lectus eu orci
-> egestas, sed rutrum risus dapibus.
+> > Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
+> > consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
+> > augue sapien. Vivamus eu vehicula erat. Integer semper lectus eu orci
+> > egestas, sed rutrum risus dapibus.
 >
 > Quisque sed nulla a justo semper sollicitudin. Nam aliquet placerat felis.
 > Quisque purus quam, pharetra eu vehicula sit amet, tincidunt gravida dui.
@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
 ```
 
 ### Strikethrough:
-The following word is ~~strikedthrough~~!
+The following word is ~~strikedthrough~~! *(deleted)*
 
 ### Task list:
-- [x] A thing todo
+- [x] A thing todo *(done!)*
 - [ ] Another thing todo
 - [ ] One more thing todo
