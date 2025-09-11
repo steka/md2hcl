@@ -5,14 +5,30 @@
 
 const fs = require('fs');
 const path = require('path');
-const marked = require('marked');
+const marked = require('marked'); // Documentation at: https://marked.js.org
 const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
 const showinfo = true;
+
+// Define the 'splitLines' function that splits a string into an array of lines.
+const splitLines = str => str.split(/\r?\n/);
+
+function NotImplementedYet(token) {
+    let type = token.type.toUpperCase();
+    let str = `\n# ${type} TOKEN\n`;
+    console.error(`⚠️  ${type} not implemented yet!`);
+    if (token.raw.replace(/\s+/g, '') != '') { // ignore only whitespaces
+        str += 'moverel 0 $fontsize\n';
+        splitLines(token.raw.replace(/(\s*\n)*$/g, "")).forEach((line) => {
+            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+        });
+    }
+    return str;
+}
 
 // Override function
 const renderer = {
     space(token) {
-        var str = '\n# SPACE TOKEN\n';
+        let str = '\n# SPACE TOKEN\n';
         if (showinfo) { // Indicate space length with a triangle in the left margin
           str += 'block\n';
           str += 'line -1 0 -1 [expr $fontsize / 2] -1.5 [expr $fontsize / 4] -1 0\n';
@@ -21,12 +37,12 @@ const renderer = {
         str += `moverel 0 [expr $fontsize / 2]\n`;
         return str;
     },
-    code(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    blockquote(token) {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    html(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    def(token)        {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    code(token)       {return NotImplementedYet(token);},
+    blockquote(token) {return NotImplementedYet(token);},
+    html(token)       {return NotImplementedYet(token);},
+    def(token)        {return NotImplementedYet(token);},
     heading(token) {
-        var str = `\n# HEADING TOKEN (depth: ${token.depth})\n`;
+        let str = `\n# HEADING TOKEN (depth: ${token.depth})\n`;
         str += `moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]\n`;
         str += `font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]\n`;
         if (token.depth < 3) {
@@ -41,45 +57,39 @@ const renderer = {
         return str;
     },
     hr(token) {
-        var str = `\n# HR TOKEN (raw: ${token.raw})\n`;
+        let str = `\n# HR TOKEN (raw: ${token.raw})\n`;
         str += 'block\n';
         str += 'line 0 0 $lines_width 0\n';
         str += 'endblock\n';
         return str;
     },
-    list(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    listitem(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    checkbox(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    list(token)       {return NotImplementedYet(token);},
+    listitem(token)   {return NotImplementedYet(token);},
+    checkbox(token)   {return NotImplementedYet(token);},
     paragraph(token) {
-        var str = '\n# PARAGRAPH TOKEN\n';
+        let str = '\n# PARAGRAPH TOKEN\n';
         str += `moverel 0 $fontsize\n`;
         str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
         str += `moverel 0 -$fontsize\n`;
         return str;
     },
-    table(token)      {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    tablerow(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    tablecell(token)  {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
+    table(token)      {return NotImplementedYet(token);},
+    tablerow(token)   {return NotImplementedYet(token);},
+    tablecell(token)  {return NotImplementedYet(token);},
 
     // span level renderer
-    strong(token)     {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    em(token)         {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    codespan(token)   {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    br(token)         {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    del(token)        {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    link(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    image(token)      {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    text(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-    html(token)       {console.error(`⚠️  ${token.type.toUpperCase()} not implemented yet!`); return '';},
-/*    html(token) {
-        if (token.text.match(/<\/?br>/)) {
-            return "\n";
-        } else if (token.text.match(/<!--.*-->/)) {
-            return "";
-        } else {
-            return "[" + token.text + "]";
-        }
-    },*/
+    strong(token)     {return NotImplementedYet(token);},
+    em(token)         {return NotImplementedYet(token);},
+    codespan(token)   {return NotImplementedYet(token);},
+    br(token)         {return NotImplementedYet(token);},
+    del(token)        {return NotImplementedYet(token);},
+    link(token)       {return NotImplementedYet(token);},
+    image(token)      {return NotImplementedYet(token);},
+    text(token)       {return NotImplementedYet(token);},
+    html(token) {
+        token.raw = token.raw.replace(/<!--[\s\S]*?-->/g, ""); // Remove HTML comments
+        return NotImplementedYet(token);
+    }
 };
 
 const header = `\
@@ -90,8 +100,8 @@ set left_margin 13
 set lines_width 140
 set indent 3
 font $font $style $fontsize
-moveto $left_margin 0
 pen black 0.25 solid
+moveto $left_margin 0
 `;
 
 // ------------------------------------------------------------------
@@ -105,7 +115,23 @@ const markdown = fs.readFileSync(mdPath, 'utf8');
 
 marked.use({ renderer });
 
-let hcl = header + marked.parse(markdown);
+let hcl = header
+
+if (showinfo) {
+    hcl += `\
+set UTIL_DIR [lindex $argv 0]
+set TYPE     [lindex $argv 1]
+set pos [here]
+moveto 0 0
+#source \${UTIL_DIR}/grid_5mm/grid_5mm.hcl
+image \${UTIL_DIR}/menuopen_P.png 226.4
+image \${UTIL_DIR}/pageinfo_P.png 226.4
+line 0 0 156.8 0 156.8 209.1 0 209.1 0 0; # reMarkable (1 & 2) border
+moveto $pos
+`
+}
+
+hcl += marked.parse(markdown);
 
 // Write result
 const outPath = mdPath.replace(/\.md$/i, '.hcl');
