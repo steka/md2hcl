@@ -37,7 +37,17 @@ const renderer = {
         str += `moverel 0 [expr $fontsize / 2]\n`;
         return str;
     },
-    code(token)       {return NotImplementedYet(token);},
+    code(token) {
+        let str = '\n# CODE TOKEN\n';
+        str += 'font LinesMono Bold [expr $fontsize * 0.8]\n';
+        str += 'moverel 3 $fontsize\n';
+        splitLines(token.text.replace(/(\s*\n)*$/g, "")).forEach((line) => {
+          str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+        });
+        str += 'moverel -3 -$fontsize\n';
+        str += 'font $font $style $fontsize\n';
+        return str;
+    },
     blockquote(token) {return NotImplementedYet(token);},
     html(token)       {return NotImplementedYet(token);},
     def(token)        {return NotImplementedYet(token);},
