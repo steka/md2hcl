@@ -10,7 +10,7 @@ const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
 const showinfo = true;
 
 // Define the 'splitLines' function that splits a string into an array of lines.
-const splitLines = str => str.split(/\r?\n/);
+const SplitLines = str => str.split(/\r?\n/);
 
 function PrepareText(text) {
     text = text.replace(/["\\\[\$]/g, match => '\\' + match); // Escape some characters that needs it.
@@ -26,7 +26,7 @@ function NotImplementedYet(token) {
     console.error(`⚠️  ${type} not implemented yet!`);
     if (token.raw.replace(/\s+/g, '') != '') { // ignore only whitespaces
         str += 'moverel 0 $fontsize\n';
-        splitLines(token.raw.replace(/(\s*\n)*$/g, "")).forEach((line) => {
+        SplitLines(token.raw.replace(/(\s*\n)*$/g, "")).forEach((line) => {
             str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
         });
     }
@@ -49,7 +49,7 @@ const renderer = {
         let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         str += 'font LinesMono Bold [expr $fontsize * 0.8]\n';
         str += 'moverel 3 $fontsize\n';
-        splitLines(token.text).forEach((line) => {
+        SplitLines(token.text).forEach((line) => {
             str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
         });
         str += 'moverel -3 -$fontsize\n';
@@ -58,13 +58,12 @@ const renderer = {
     },
     blockquote(token) {
         let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
-        str += 'moverel 0 $fontsize\n';
         str += 'set xpos [expr [X [here]] + [expr $indent / 2]]\n';
-        str += 'set ypos [expr [Y [here]] - $fontsize]\n';
+        str += 'set ypos [Y [here]]\n';
         str += 'moverel $indent 0\n';
-        str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" [expr $lines_width - 3]\n`;
+        str +=  this.parser.parse(token.tokens);
         str += 'moverel -$indent 0\n';
-        str += 'line $xpos $ypos $xpos [expr [Y [here]] - $fontsize]\n';
+        str += 'line $xpos $ypos $xpos [Y [here]]\n';
         str += 'moverel -[expr $indent / 2] 0\n';
         return str;
     },
@@ -81,7 +80,7 @@ const renderer = {
             str += 'endblock\n';
         }
         let text = PrepareText(this.parser.parseInline(token.tokens));
-        splitLines(text).forEach((line) => {
+        SplitLines(text).forEach((line) => {
             str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
         });
         str += 'font $font $style $fontsize\n';
@@ -113,7 +112,7 @@ const renderer = {
         let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         str += `moverel 0 $fontsize\n`;
         let text = PrepareText(this.parser.parseInline(token.tokens));
-        splitLines(text).forEach((line) => {
+        SplitLines(text).forEach((line) => {
             str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
         });
         str += `moverel 0 -$fontsize\n`;
@@ -127,10 +126,10 @@ const renderer = {
     strong(token)     {return token.text;},
     em(token)         {return token.text;},
     codespan(token)   {return token.text;},
-    br(token)         {NotImplementedYet(token);},
-    del(token)        {NotImplementedYet(token);},
-    link(token)       {return token.raw},
-    image(token)      {return token.raw},
+    br(token)         {return NotImplementedYet(token);},
+    del(token)        {return token.text;},
+    link(token)       {return token.raw;},
+    image(token)      {return token.raw;},
     text(token)       {return token.text;},
     html(token) {
         if (token.text.match(/<\/?br>/i)) {

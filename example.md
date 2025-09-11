@@ -3,7 +3,7 @@
 ### Heading level 3 (**bold**)
 #### Heading level 4 (***bold-italic***)
 ##### Heading level 5 `code`
-###### Heading <br> level 6 
+###### Heading <br> level 6
 
 ### Paragraphs:
 A paragraph with      different styles: **bold**, *italic* and ***bold-italic***,
@@ -20,8 +20,8 @@ tellus orci vel arcu. Sed elementum et ligula at luctus. Phasellus suscipit
 nunc et dolor luctus faucibus.
 
 ### Block quote:
-> Different styles: **bold**, *italic* and ***bold-italic***, and a<br>
-> forced line break.
+> Different styles: **bold**, *italic* and ***bold-italic***, a<br>
+> forced line break and some include `code`.
 >
 > Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
 > consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
@@ -30,7 +30,7 @@ nunc et dolor luctus faucibus.
 >
 > Quisque sed nulla a justo semper sollicitudin. Nam aliquet placerat felis.
 > Quisque purus quam, pharetra eu vehicula sit amet, tincidunt gravida dui.
-> Cras vel faucibus dui, non pellentesque dui. 
+> Cras vel faucibus dui, non pellentesque dui.
 
 ### Ordered list:
 1. First item (**bold**)
