@@ -123,11 +123,11 @@ const renderer = {
     tablecell(token)  {return NotImplementedYet(token);},
 
     // span level renderer
-    strong(token)     {return token.text;},
-    em(token)         {return token.text;},
-    codespan(token)   {return token.text;},
+    strong(token)     {return this.parser.parseInline(token.tokens);},
+    em(token)         {return this.parser.parseInline(token.tokens);},
+    codespan(token)   {return token.text},
     br(token)         {return NotImplementedYet(token);},
-    del(token)        {return token.text;},
+    del(token)        {return this.parser.parseInline(token.tokens);},
     link(token)       {return token.raw;},
     image(token)      {return token.raw;},
     text(token)       {return token.text;},
