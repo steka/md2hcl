@@ -48,7 +48,18 @@ const renderer = {
         str += 'font $font $style $fontsize\n';
         return str;
     },
-    blockquote(token) {return NotImplementedYet(token);},
+    blockquote(token) {
+        let str = '\n# BLOCKQUOTE TOKEN\n';
+        str += 'moverel 0 $fontsize\n';
+        str += 'set xpos [expr [X [here]] + [expr $indent / 2]]\n';
+        str += 'set ypos [expr [Y [here]] - $fontsize]\n';
+        str += 'moverel $indent 0\n';
+        str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" [expr $lines_width - 3]\n`;
+        str += 'moverel -$indent 0\n';
+        str += 'line $xpos $ypos $xpos [expr [Y [here]] - $fontsize]\n';
+        str += 'moverel -[expr $indent / 2] 0\n';
+        return str;
+    },
     html(token)       {return NotImplementedYet(token);},
     def(token)        {return NotImplementedYet(token);},
     heading(token) {
@@ -73,7 +84,17 @@ const renderer = {
         str += 'endblock\n';
         return str;
     },
-    list(token)       {return NotImplementedYet(token);},
+    list(token) {
+        let str = '\n# LIST TOKEN\n';
+        str += 'moverel $indent $fontsize\n';
+        prefix = token.ordered ? token.start : '-';
+        token.items.forEach((item) => {
+          str += `text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
+          if (token.ordered) prefix++;
+        });
+        str += 'moverel -$indent -$fontsize\n';
+        return str;
+    },
     listitem(token)   {return NotImplementedYet(token);},
     checkbox(token)   {return NotImplementedYet(token);},
     paragraph(token) {

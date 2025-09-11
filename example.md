@@ -1,14 +1,9 @@
 # Basic Syntax
-## Heading level 2
-### Heading level 3
-#### Heading level 4
+## Heading level 2 (*italic*)
+### Heading level 3 (**bold**)
+#### Heading level 4 (***bold-italic***)
 ##### Heading level 5
 ###### Heading level 6
-
-### Styles:
-Different styles: **bold**, *italic* and ***bold-italic***
-
-Some characters needs to be escaped (quote: ", backspace: \, left bracket: [ and dollar: $)
 
 ### Paragraphs:
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo posuere
@@ -22,16 +17,26 @@ nunc et dolor luctus faucibus.
 And a paragraph with a<br>
 forced line break.
 
+Different styles: **bold**, *italic* and ***bold-italic***
+
+Some characters needs to be escaped (quote: ", backspace: \, left bracket: [ and dollar: $)
+
 ### Block quote:
 > Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
 > consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
 > augue sapien. Vivamus eu vehicula erat. Integer semper lectus eu orci
 > egestas, sed rutrum risus dapibus.
+>
+> Quisque sed nulla a justo semper sollicitudin. Nam aliquet placerat felis.
+> Quisque purus quam, pharetra eu vehicula sit amet, tincidunt gravida dui.
+> Cras vel faucibus dui, non pellentesque dui. 
+>
+> Different styles: **bold**, *italic* and ***bold-italic***
 
 ### Ordered list:
-1. First item
-2. Second item
-3. Third item
+1. First item (**bold**)
+3. Second item (*italic*)
+4. Third item (***bold-italic***)
 
 ### Unordered list:
 - Apple
