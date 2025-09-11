@@ -3,7 +3,7 @@
 ### Heading level 3 (**bold**)
 #### Heading level 4 (***bold-italic***)
 ##### Heading level 5 `code`
-###### Heading <br> level 6
+###### Heading <br> level 6 [xyz]
 
 ### Paragraphs:
 A paragraph with      different styles: **bold**, *italic* and ***bold-italic***,
@@ -33,13 +33,35 @@ nunc et dolor luctus faucibus.
 > Cras vel faucibus dui, non pellentesque dui.
 
 ### Ordered list:
-1. First item (**bold**)
-3. Second item (*italic*)
-4. Third item (***bold-italic***)
-5. Forth item have a <br> forced line break
+1. First item
+3. Second item
+   1. abc
+      1. 123
+      2. 456
+         - 234
+         - 345
+         - 456
+   2. def
+   3. ghi
+4. Third item
+5. Forth item have a forced line break
+6. a6a
+7. a7b
+8. a8c
+9. a9d
+10. Tens item
 
 ### Unordered list:
 - Apple
+  - a
+    - 1
+    - 2
+      1. 5
+      2. 6
+      3. 7
+    - 3
+  - b
+  - c
 - Pear
 - Orange
 
@@ -57,14 +79,14 @@ Text after horizontal line
 [example.com](https://example.com)
 
 ### Image:
-![alt. text](image.jpg)
+![TestImage](https://dummyimage.com/100x100/808080/000000.png&text=Testimage)
 
 # Extended syntax
 
 ### Table:
 | Header 1 | Header 2 |
 | -------- | -------- |
-| Cell 1.1 | Cell 2.1 |
+| Cell 1.1 | Cell [2.1] |
 | Cell 1.2 | Cell 2.2 |
 | Cell 1.3 | Cell 2.3 |
 
@@ -82,6 +104,6 @@ int main(int argc, char *argv[])
 The following word is ~~strikedthrough~~! *(deleted)*
 
 ### Task list:
-- [x] A thing todo *(done!)*
+- [x] A thing todo
 - [ ] Another thing todo
 - [ ] One more thing todo

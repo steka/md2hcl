@@ -7,16 +7,29 @@ const fs = require('fs');
 const path = require('path');
 const marked = require('marked'); // Documentation at: https://marked.js.org
 const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
-const showinfo = true;
+const showinfo = false;
+
+const header = `\
+set font Lines
+set style plain
+set fontsize 3
+set left_margin 14
+set right_margin 150
+set indent 3
+font $font $style $fontsize
+pen black 0.25 solid
+moveto $left_margin 0
+`;
 
 globalThis.blockLevel = 0;
+globalThis.listLevel = 0;
 
 // Define the 'splitLines' function that splits a string into an array of lines.
 const SplitLines = str => str.split(/\r?\n/);
 
 function PrepareText(text) {
     text = text.replace(/["\\\[\$]/g, match => '\\' + match); // Escape some characters that needs it.
-    text = text.replace(/\n/g, ' '); // Make a multi line into a single line
+    text = text.replace(/\n/g, ' '); // Replace line breaks with spaces
     text = text.replace(/[ \t]+/g, ' '); // Replace all repeated spaces, with just one
     text = text.replace(/\s*<BR>\s*/g, '\n'); // Replace <BR> with forced newline
     return text
@@ -29,7 +42,7 @@ function NotImplementedYet(token) {
     if (token.raw.replace(/\s+/g, '') != '') { // ignore only whitespaces
         str += 'moverel 0 $fontsize\n';
         SplitLines(token.raw.replace(/(\s*\n)*$/g, "")).forEach((line) => {
-            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" [expr $right_margin - [X [here]]]\n`;
         });
     }
     return str;
@@ -52,7 +65,7 @@ const renderer = {
         str += 'font LinesMono Bold [expr $fontsize * 0.8]\n';
         str += 'moverel 3 $fontsize\n';
         SplitLines(token.text).forEach((line) => {
-            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" [expr $right_margin - [X [here]]]\n`;
         });
         str += 'moverel -3 -$fontsize\n';
         str += 'font $font $style $fontsize\n';
@@ -80,12 +93,12 @@ const renderer = {
         if (token.depth < 3) {
             str += 'block\n';
             str += 'moverel 0 1\n';
-            str += 'linerel $lines_width 0\n';
+            str += 'linerel [expr $right_margin - $left_margin] 0\n';
             str += 'endblock\n';
         }
         let text = PrepareText(this.parser.parseInline(token.tokens));
         SplitLines(text).forEach((line) => {
-            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+            str += `text "${line}" [expr $right_margin - [X [here]]]\n`;
         });
         str += 'font $font $style $fontsize\n';
         str += `moverel 0 [expr -$fontsize * ${headingScale[token.depth-1]}]\n`;
@@ -94,20 +107,27 @@ const renderer = {
     hr(token) {
         let str = `\n# ${token.type.toUpperCase()} TOKEN (raw: ${token.raw})\n`;
         str += 'block\n';
-        str += 'line 0 0 $lines_width 0\n';
+        str += 'line 0 0 [expr $right_margin - $left_margin] 0\n';
         str += 'endblock\n';
         return str;
     },
     list(token) {
-        //console.log(JSON.stringify(token, null, 2));
+        globalThis.listLevel += 1;
         let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
-        str += 'moverel $indent $fontsize\n';
-        prefix = token.ordered ? token.start : '-';
+        let prefix = token.ordered ? token.start : '•';
+        str += `moverel $indent 0\n`;
         token.items.forEach((item) => {
-            str += `text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
-            if (token.ordered) prefix++;
+            str += 'block\n';
+            str += `moverel 0 $fontsize\n`;
+            str += `text "${token.ordered ? prefix + '.' : prefix}"\n`;
+            str += 'endblock\n';
+            str += `moverel [expr $fontsize * ${token.ordered ? (prefix + ".").length * 0.6 : 0.6}] 0\n`;
+            str += this.parser.parse(item.tokens);
+            str += `moverel [expr $fontsize * -${token.ordered ? (prefix + ".").length * 0.6 : 0.6}] 0\n`;
+            if (token.ordered) prefix += 1;
         });
-        str += 'moverel -$indent -$fontsize\n';
+        str += `moverel -$indent 0\n`;
+        globalThis.listLevel -= 1;
         return str;
     },
     listitem(token)   {return NotImplementedYet(token);},
@@ -117,7 +137,7 @@ const renderer = {
         str += `moverel 0 $fontsize\n`;
         let text = PrepareText(this.parser.parseInline(token.tokens));
         SplitLines(text).forEach((line) => {
-            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+            str += `text "${line}" [expr $right_margin - [X [here]]]\n`;
         });
         str += `moverel 0 -$fontsize\n`;
         return str;
@@ -144,18 +164,6 @@ const renderer = {
         }
     }
 };
-
-const header = `\
-set font Lines
-set style plain
-set fontsize 3
-set left_margin 13
-set lines_width 140
-set indent 3
-font $font $style $fontsize
-pen black 0.25 solid
-moveto $left_margin 0
-`;
 
 // ------------------------------------------------------------------
 // CLI handling
