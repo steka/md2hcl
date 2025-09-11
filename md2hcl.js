@@ -12,6 +12,14 @@ const showinfo = true;
 // Define the 'splitLines' function that splits a string into an array of lines.
 const splitLines = str => str.split(/\r?\n/);
 
+function PrepareText(text) {
+    text = text.replace(/["\\\[\$]/g, match => '\\' + match); // Escape some characters that needs it.
+    text = text.replace(/\n/g, ' '); // Make a multi line into a single line
+    text = text.replace(/[ \t]+/g, ' '); // Replace all repeated spaces, with just one
+    text = text.replace(/\s*<BR>\s*/g, '\n'); // Replace <BR> with forced newline
+    return text
+}
+
 function NotImplementedYet(token) {
     let type = token.type.toUpperCase();
     let str = `\n# ${type} TOKEN\n`;
@@ -28,28 +36,28 @@ function NotImplementedYet(token) {
 // Override function
 const renderer = {
     space(token) {
-        let str = '\n# SPACE TOKEN\n';
+        let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         if (showinfo) { // Indicate space length with a triangle in the left margin
-          str += 'block\n';
-          str += 'line -1 0 -1 [expr $fontsize / 2] -1.5 [expr $fontsize / 4] -1 0\n';
-          str += 'endblock\n';
+            str += 'block\n';
+            str += 'line -1 0 -1 [expr $fontsize / 2] -1.5 [expr $fontsize / 4] -1 0\n';
+            str += 'endblock\n';
         }
         str += `moverel 0 [expr $fontsize / 2]\n`;
         return str;
     },
     code(token) {
-        let str = '\n# CODE TOKEN\n';
+        let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         str += 'font LinesMono Bold [expr $fontsize * 0.8]\n';
         str += 'moverel 3 $fontsize\n';
-        splitLines(token.text.replace(/(\s*\n)*$/g, "")).forEach((line) => {
-          str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+        splitLines(token.text).forEach((line) => {
+            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
         });
         str += 'moverel -3 -$fontsize\n';
         str += 'font $font $style $fontsize\n';
         return str;
     },
     blockquote(token) {
-        let str = '\n# BLOCKQUOTE TOKEN\n';
+        let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         str += 'moverel 0 $fontsize\n';
         str += 'set xpos [expr [X [here]] + [expr $indent / 2]]\n';
         str += 'set ypos [expr [Y [here]] - $fontsize]\n';
@@ -63,34 +71,38 @@ const renderer = {
     html(token)       {return NotImplementedYet(token);},
     def(token)        {return NotImplementedYet(token);},
     heading(token) {
-        let str = `\n# HEADING TOKEN (depth: ${token.depth})\n`;
+        let str = `\n# ${token.type.toUpperCase()} TOKEN (depth: ${token.depth})\n`;
         str += `moverel 0 [expr $fontsize * ${headingScale[token.depth-1]}]\n`;
         str += `font $font bold [expr $fontsize * ${headingScale[token.depth-1]}]\n`;
         if (token.depth < 3) {
-          str += 'block\n';
-          str += 'moverel 0 1\n';
-          str += 'linerel $lines_width 0\n';
-          str += 'endblock\n';
+            str += 'block\n';
+            str += 'moverel 0 1\n';
+            str += 'linerel $lines_width 0\n';
+            str += 'endblock\n';
         }
-        str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
+        let text = PrepareText(this.parser.parseInline(token.tokens));
+        splitLines(text).forEach((line) => {
+            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+        });
         str += 'font $font $style $fontsize\n';
         str += `moverel 0 [expr -$fontsize * ${headingScale[token.depth-1]}]\n`;
         return str;
     },
     hr(token) {
-        let str = `\n# HR TOKEN (raw: ${token.raw})\n`;
+        let str = `\n# ${token.type.toUpperCase()} TOKEN (raw: ${token.raw})\n`;
         str += 'block\n';
         str += 'line 0 0 $lines_width 0\n';
         str += 'endblock\n';
         return str;
     },
     list(token) {
-        let str = '\n# LIST TOKEN\n';
+        //console.log(JSON.stringify(token, null, 2));
+        let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         str += 'moverel $indent $fontsize\n';
         prefix = token.ordered ? token.start : '-';
         token.items.forEach((item) => {
-          str += `text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
-          if (token.ordered) prefix++;
+            str += `text "${prefix} ${item.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
+            if (token.ordered) prefix++;
         });
         str += 'moverel -$indent -$fontsize\n';
         return str;
@@ -98,9 +110,12 @@ const renderer = {
     listitem(token)   {return NotImplementedYet(token);},
     checkbox(token)   {return NotImplementedYet(token);},
     paragraph(token) {
-        let str = '\n# PARAGRAPH TOKEN\n';
+        let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
         str += `moverel 0 $fontsize\n`;
-        str += `text "${token.text.replace(/["\\\[\$]/g, match => '\\' + match).replace(/\s+/g, " ")}" $lines_width\n`;
+        let text = PrepareText(this.parser.parseInline(token.tokens));
+        splitLines(text).forEach((line) => {
+            str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" $lines_width\n`;
+        });
         str += `moverel 0 -$fontsize\n`;
         return str;
     },
@@ -109,17 +124,21 @@ const renderer = {
     tablecell(token)  {return NotImplementedYet(token);},
 
     // span level renderer
-    strong(token)     {return NotImplementedYet(token);},
-    em(token)         {return NotImplementedYet(token);},
-    codespan(token)   {return NotImplementedYet(token);},
-    br(token)         {return NotImplementedYet(token);},
-    del(token)        {return NotImplementedYet(token);},
-    link(token)       {return NotImplementedYet(token);},
-    image(token)      {return NotImplementedYet(token);},
-    text(token)       {return NotImplementedYet(token);},
+    strong(token)     {return token.text;},
+    em(token)         {return token.text;},
+    codespan(token)   {return token.text;},
+    br(token)         {NotImplementedYet(token);},
+    del(token)        {NotImplementedYet(token);},
+    link(token)       {return token.raw},
+    image(token)      {return token.raw},
+    text(token)       {return token.text;},
     html(token) {
-        token.raw = token.raw.replace(/<!--[\s\S]*?-->/g, ""); // Remove HTML comments
-        return NotImplementedYet(token);
+        if (token.text.match(/<\/?br>/i)) {
+            return '<BR>'; // Keep the BR, to split into text lines later
+        } else {
+            token.raw = token.raw.replace(/<!--[\s\S]*?-->/g, ""); // Remove HTML comments
+            return NotImplementedYet(token);
+        }
     }
 };
 

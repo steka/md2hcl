@@ -2,10 +2,15 @@
 ## Heading level 2 (*italic*)
 ### Heading level 3 (**bold**)
 #### Heading level 4 (***bold-italic***)
-##### Heading level 5
-###### Heading level 6
+##### Heading level 5 `code`
+###### Heading <br> level 6 
 
 ### Paragraphs:
+A paragraph with      different styles: **bold**, *italic* and ***bold-italic***,
+	some characters needs to be escaped (double quote: ", backspace: \, left
+	bracket: [ and dollar: $).<br>
+This paragraph also have a forced line break.
+
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo posuere
 felis, at mattis lectus vestibulum in. Vestibulum finibus, leo sed porttitor
 rhoncus, augue ex commodo enim, in accumsan diam nisl vel purus.
@@ -14,14 +19,10 @@ Sed aliquet, felis at lobortis tempor, mi lectus vestibulum erat, ut interdum
 tellus orci vel arcu. Sed elementum et ligula at luctus. Phasellus suscipit
 nunc et dolor luctus faucibus.
 
-And a paragraph with a<br>
-forced line break.
-
-Different styles: **bold**, *italic* and ***bold-italic***
-
-Some characters needs to be escaped (quote: ", backspace: \, left bracket: [ and dollar: $)
-
 ### Block quote:
+> Different styles: **bold**, *italic* and ***bold-italic***, and a<br>
+> forced line break.
+>
 > Suspendisse turpis odio, pulvinar in ornare nec, mollis ut neque. Nulla
 > consectetur lacinia lorem a pharetra. Vivamus eget urna velit. Ut nec
 > augue sapien. Vivamus eu vehicula erat. Integer semper lectus eu orci
@@ -30,13 +31,12 @@ Some characters needs to be escaped (quote: ", backspace: \, left bracket: [ and
 > Quisque sed nulla a justo semper sollicitudin. Nam aliquet placerat felis.
 > Quisque purus quam, pharetra eu vehicula sit amet, tincidunt gravida dui.
 > Cras vel faucibus dui, non pellentesque dui. 
->
-> Different styles: **bold**, *italic* and ***bold-italic***
 
 ### Ordered list:
 1. First item (**bold**)
 3. Second item (*italic*)
 4. Third item (***bold-italic***)
+5. Forth item have a <br> forced line break
 
 ### Unordered list:
 - Apple
