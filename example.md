@@ -34,7 +34,7 @@ nunc et dolor luctus faucibus.
 
 ### Ordered list:
 1. First item
-3. Second item
+2. Second item
    1. abc
       1. 123
       2. 456
@@ -43,12 +43,13 @@ nunc et dolor luctus faucibus.
          - 456
    2. def
    3. ghi
-4. Third item
-5. Forth item have a forced line break
-6. a6a
-7. a7b
-8. a8c
-9. a9d
+3. Third item
+4. Forth item have a forced line break
+5. a5a
+6. a6b
+8. a7c
+8. a8d
+9. a9e
 10. Tens item
 
 ### Unordered list:
