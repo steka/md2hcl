@@ -172,6 +172,9 @@ const renderer = {
         });
         str += "}\n";
 
+        str += 'set total 0\n';
+        str += 'foreach n $tab {set total [expr $total + $n]}\n';
+
         str += "table $tab 0 { ";
         token.header.forEach((header) => {
             let text =  PrepareText(this.parser.parseInline(header.tokens));
@@ -181,7 +184,7 @@ const renderer = {
 
         str += 'block\n';
         str += 'moverel 0 [expr -$fontsize*1.2]\n';
-        str += `linerel ${token.header.length * 20} 0\n`;
+        str += `linerel $total 0\n`;
         str += 'endblock\n';
 
         token.rows.forEach((row) => {
