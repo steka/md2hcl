@@ -213,7 +213,7 @@ const renderer = {
     strong(token)     {return this.parser.parseInline(token.tokens);},
     em(token)         {return this.parser.parseInline(token.tokens);},
     codespan(token)   {return token.text},
-    br(token)         {return NotImplementedYet(token);},
+    br(token)         {return '<BR>'}, // To split into text lines later
     del(token)        {return this.parser.parseInline(token.tokens);},
     link(token)       {return token.raw;},
     image(token)      {return token.raw;},

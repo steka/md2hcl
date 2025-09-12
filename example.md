@@ -9,7 +9,8 @@
 A paragraph with      different styles: **bold**, *italic* and ***bold-italic***,
 	some characters needs to be escaped (double quote: ", backspace: \, left
 	bracket: [ and dollar: $).<br>
-This paragraph also have a forced line break.
+This paragraph also have two different \
+kind of forced line break.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut commodo posuere
 felis, at mattis lectus vestibulum in. Vestibulum finibus, leo sed porttitor
