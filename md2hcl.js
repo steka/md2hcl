@@ -2,6 +2,8 @@
 // -------------------------------------------------
 //   Convert Markdown to Drawj2d HCL
 // -------------------------------------------------
+//
+// https://drawj2d.sourceforge.io/drawj2d_en.pdf
 
 const fs = require('fs');
 const path = require('path');
@@ -19,6 +21,25 @@ set indent 3
 font $font $style $fontsize
 pen black 0.25 solid
 moveto $left_margin 0
+`;
+
+// From: Drawj2d\doc\util\util.hcl (v1.3.4)
+const tablefunc = `\
+proc table {tabs vertdist entries} {
+    assert "[llen $tabs] > 0"
+    block
+    set i 0
+    foreach entry $entries {
+        set pos [here]
+        eval $entry
+        moveto $pos
+        if {< $i [llen $tabs]} {set tab [lindex $tabs $i]}
+        moverel [mm $tab] 0
+        incr $i
+    }
+    endblock
+    if {= 0 $vertdist} {text} else {moverel 0 [mm $vertdist]}
+}
 `;
 
 globalThis.blockLevel = 0;
@@ -142,7 +163,38 @@ const renderer = {
         str += `moverel 0 -$fontsize\n`;
         return str;
     },
-    table(token)      {return NotImplementedYet(token);},
+    table(token) {
+        let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
+        str += `moverel 0 $fontsize\n`;
+        str += "set tab { ";
+        token.header.forEach(() => {
+            str += "20 ";
+        });
+        str += "}\n";
+
+        str += "table $tab 0 { ";
+        token.header.forEach((header) => {
+            let text =  PrepareText(this.parser.parseInline(header.tokens));
+            str += `{text "${text}"} `;
+        });
+        str += "}\n";
+
+        str += 'block\n';
+        str += 'moverel 0 [expr -$fontsize*1.2]\n';
+        str += `linerel ${token.header.length * 20} 0\n`;
+        str += 'endblock\n';
+
+        token.rows.forEach((row) => {
+            str += "table $tab 0 { ";
+            row.forEach((cell) => {
+                let text =  PrepareText(this.parser.parseInline(cell.tokens));
+                str += `{text "${text}"} `;
+            });
+            str += "}\n";
+        });
+        str += `moverel 0 -$fontsize\n`;
+        return str;
+    },
     tablerow(token)   {return NotImplementedYet(token);},
     tablecell(token)  {return NotImplementedYet(token);},
 
@@ -156,8 +208,8 @@ const renderer = {
     image(token)      {return token.raw;},
     text(token)       {return token.text;},
     html(token) {
-        if (token.text.match(/<\/?br>/i)) {
-            return '<BR>'; // Keep the BR, to split into text lines later
+        if (token.text.match(/^<\/?br>$/i)) {
+            return '<BR>'; // Keep the BR (in uppercase), to split into text lines later
         } else {
             token.raw = token.raw.replace(/<!--[\s\S]*?-->/g, ""); // Remove HTML comments
             return NotImplementedYet(token);
@@ -176,25 +228,7 @@ const markdown = fs.readFileSync(mdPath, 'utf8');
 
 marked.use({ renderer });
 
-let hcl = header
-
-if (showinfo) {
-    hcl += `\
-set UTIL_DIR [lindex $argv 0]
-set TYPE     [lindex $argv 1]
-set pos [here]
-moveto 0 0
-#source \${UTIL_DIR}/grid_5mm/grid_5mm.hcl
-image \${UTIL_DIR}/menuopen_P.png 226.4
-image \${UTIL_DIR}/pageinfo_P.png 226.4
-line 0 0 156.8 0 156.8 209.1 0 209.1 0 0; # reMarkable (1 & 2) border
-moveto $pos
-`
-}
-
-hcl += marked.parse(markdown);
-
 // Write result
 const outPath = mdPath.replace(/\.md$/i, '.hcl');
-fs.writeFileSync(outPath, hcl);
+fs.writeFileSync(outPath, header + tablefunc + marked.parse(markdown));
 console.log(`✅ HCL written to ${outPath}`);
