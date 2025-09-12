@@ -114,7 +114,12 @@ const renderer = {
         if (token.depth < 3) {
             str += 'block\n';
             str += 'moverel 0 1\n';
-            str += 'linerel [expr $right_margin - $left_margin] 0\n';
+            str += 'set xpos [X [here]]\n'
+            str += 'line $xpos [Y [here]] [expr $right_margin - $left_margin] [Y [here]]\n';
+            if (token.depth == 1) {
+                str += 'moverel 0 0.5\n';
+                str += 'line $xpos [Y [here]] [expr $right_margin - $left_margin] [Y [here]]\n';
+            }
             str += 'endblock\n';
         }
         let text = PrepareText(this.parser.parseInline(token.tokens));
@@ -123,6 +128,9 @@ const renderer = {
         });
         str += 'font $font $style $fontsize\n';
         str += `moverel 0 [expr -$fontsize * ${headingScale[token.depth-1]}]\n`;
+        if (token.depth == 1) {
+            str += 'moverel 0 0.5\n';
+        }
         return str;
     },
     hr(token) {
