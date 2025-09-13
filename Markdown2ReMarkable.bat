@@ -1,4 +1,6 @@
 @echo off
+cls
+pushd
 setlocal
 
 if "%~1"=="" echo Usage: Markdown2ReMarkable.bat {markdownfile} & goto error
@@ -22,7 +24,7 @@ java -jar drawj2d.jar --type rmdoc --outfile "%RMDOCFILE%" "%HCLFILE%"
 if errorlevel 1 goto error
 
 @echo on
-curl http://10.11.99.1/upload --header "Origin: http://10.11.99.1" --header "Accept: */*" --header "Referer: http://10.11.99.1/" --header "Connection: keep-alive" --form "file=@%RMDOCFILE%"
+curl http://10.11.99.1/upload --header "Origin: http://10.11.99.1" --header "Accept: */*" --header "Referer: http://10.11.99.1/" --header "Connection: keep-alive" --form "file=@%RMDOCFILE%" | findstr "Upload successful"
 @echo off
 if errorlevel 1 goto error
 
@@ -33,7 +35,7 @@ REM %1 = prefix for the temporary directory name
 REM %2 = name of the output variable to receive the full temporary directory name
 setlocal enableextensions enabledelayedexpansion
 :generate_new_dirname
-set "dirname=%TEMP%\%~1_%RANDOM%"
+set "dirname=%TEMP%\%~1_%RANDOM%%RANDOM%"
 mkdir "!dirname!"
 if errorlevel 1 goto generate_new_dirname
 endlocal & set "%~2=%dirname%"
@@ -61,7 +63,6 @@ if "!valid!"=="0" (
 endlocal & set "%~4=%input%"
 exit /b
 
-
 :error
 echo.
 echo Errors detected!
@@ -69,3 +70,4 @@ pause
 
 :done
 rmdir /S/Q "%TEMPDIR%"
+popd
