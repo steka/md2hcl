@@ -1,4 +1,5 @@
 /node_modules/
-*.hcl
-*.html
-/_Drawj2D_to_*.lnk
+/*.hcl
+/*.html
+/*.lnk
+/drawj2d.jar

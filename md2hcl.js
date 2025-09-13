@@ -230,16 +230,16 @@ const renderer = {
 
 // ------------------------------------------------------------------
 // CLI handling
-if (process.argv.length < 3) {
-  console.error('Usage: node md2hcl.js <markdown-file>');
+if (process.argv.length < 4) {
+  console.error('Usage: md2hcl.js {inputfile} {outputfile}');
   process.exit(1);
 }
 const mdPath = path.resolve(process.argv[2]);
-const markdown = fs.readFileSync(mdPath, 'utf8');
+const hclPath = path.resolve(process.argv[3]);
 
+const markdown = fs.readFileSync(mdPath, 'utf8');
 marked.use({ renderer });
 
 // Write result
-const outPath = mdPath.replace(/\.md$/i, '.hcl');
-fs.writeFileSync(outPath, header + tablefunc + marked.parse(markdown));
-console.log(`✅ HCL written to ${outPath}`);
+fs.writeFileSync(hclPath, header + tablefunc + marked.parse(markdown));
+console.log(`✅ HCL written to ${hclPath}`);
