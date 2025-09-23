@@ -5,9 +5,11 @@
 //
 // https://drawj2d.sourceforge.io/drawj2d_en.pdf
 
-const fs = require('fs');
-const path = require('path');
-const marked = require('marked'); // Documentation at: https://marked.js.org
+import { imageSize } from 'image-size'; // Documentation: https://github.com/image-size/image-size
+import fs from 'fs';
+import path from 'path';
+import { marked } from 'marked'; // Documentation at: https://marked.js.org
+
 const headingScale = [1.6, 1.5, 1.4, 1.3, 1.2, 1.1];
 const showinfo = false;
 
@@ -53,6 +55,7 @@ function PrepareText(text) {
     text = text.replace(/\n/g, ' '); // Replace line breaks with spaces
     text = text.replace(/[ \t]+/g, ' '); // Replace all repeated spaces, with just one
     text = text.replace(/\s*<BR>\s*/g, '\n'); // Replace <BR> with forced newline
+    text = text.replace(/\s*<IMG SRC=\\".*\\"\/>\s*/g, match => '\n' + match + '\n'); // Move image to separate line
     return text
 }
 
@@ -83,7 +86,7 @@ const renderer = {
     },
     code(token) {
         let str = `\n# ${token.type.toUpperCase()} TOKEN\n`;
-        str += 'font LinesMono Bold [expr $fontsize * 0.8]\n';
+        str += 'font LinesMono $style [expr $fontsize * 0.8]\n';
         str += 'moverel 3 $fontsize\n';
         SplitLines(token.text).forEach((line) => {
             str += `text "${line.replace(/["\\\[\$]/g, match => '\\' + match)}" [expr $right_margin - [X [here]]]\n`;
@@ -166,7 +169,17 @@ const renderer = {
         str += `moverel 0 $fontsize\n`;
         let text = PrepareText(this.parser.parseInline(token.tokens));
         SplitLines(text).forEach((line) => {
-            str += `text "${line}" [expr $right_margin - [X [here]]]\n`;
+            let res = line.match(/^\s*<IMG SRC=\\"(.*)\\"\/>\s*$/)
+            if (res) {
+                const dpi = 200;
+                str += `moverel 0 -$fontsize\n`;
+                str += `image "${res[1]}" ${dpi}\n`;
+                const imgBuf = fs.readFileSync(res[1]);
+                const dimensions = imageSize(imgBuf);
+                str += `moverel 0 [expr ${dimensions.height} / ${dpi} * 25.4 + $fontsize]\n`;
+            } else { 
+                str += `text "${line}" [expr $right_margin - [X [here]]]\n`;
+            }
         });
         str += `moverel 0 -$fontsize\n`;
         return str;
@@ -185,7 +198,7 @@ const renderer = {
 
         str += "table $tab 0 { ";
         token.header.forEach((header) => {
-            let text =  PrepareText(this.parser.parseInline(header.tokens));
+            let text = PrepareText(this.parser.parseInline(header.tokens));
             str += `{text "${text}"} `;
         });
         str += "}\n";
@@ -198,7 +211,7 @@ const renderer = {
         token.rows.forEach((row) => {
             str += "table $tab 0 { ";
             row.forEach((cell) => {
-                let text =  PrepareText(this.parser.parseInline(cell.tokens));
+                let text = PrepareText(this.parser.parseInline(cell.tokens));
                 str += `{text "${text}"} `;
             });
             str += "}\n";
@@ -212,11 +225,11 @@ const renderer = {
     // span level renderer
     strong(token)     {return this.parser.parseInline(token.tokens);},
     em(token)         {return this.parser.parseInline(token.tokens);},
-    codespan(token)   {return token.text},
-    br(token)         {return '<BR>'}, // To split into text lines later
+    codespan(token)   {return token.text;},
+    br(token)         {return '<BR>';}, // To split into text lines later
     del(token)        {return this.parser.parseInline(token.tokens);},
     link(token)       {return token.raw;},
-    image(token)      {return token.raw;},
+    image(token)      {return `\n<IMG SRC="${token.href}"/>\n`;}, // Handle later
     text(token)       {return token.text;},
     html(token) {
         if (token.text.match(/^<\/?br>$/i)) {

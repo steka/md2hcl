@@ -6,9 +6,9 @@
 ###### Heading <br> level 6 [xyz]
 
 ### Paragraphs:
-A paragraph with      different styles: **bold**, *italic* and ***bold-italic***,
-	some characters needs to be escaped (double quote: ", backspace: \, left
-	bracket: [ and dollar: $).<br>
+A paragraph with      different styles: **bold level 1** ****bold level2****,
+  *italic* and ***bold-italic***, some characters needs to be escaped
+  (double-quote: ", backspace: \, left bracket: [ and dollar: $).<br>
 This paragraph also have two different \
 kind of forced line break.
 
@@ -78,10 +78,10 @@ Text before horizontal line
 Text after horizontal line
 
 ### Link:
-[example.com](https://example.com)
+Lorem [example.com](https://example.com "Hover over link") ipsum
 
 ### Image:
-![TestImage](https://dummyimage.com/100x100/808080/000000.png&text=Testimage)
+Lorem ![Markdown logo](markdown_66x40.png "Hover over image") ipsum!
 
 # Extended syntax
 
@@ -93,12 +93,14 @@ Text after horizontal line
 | Cell 1.3 | Cell 2.3 |
 
 ### Fenced code block:
-```
+```c
 #include <stdio.h>
+#include <stdlib.h>
+
 int main(int argc, char *argv[])
 {
     printf("Hello World!\n");
-    return 0;
+    return EXIT_SUCCESS;
 }
 ```
 
